@@ -86,6 +86,7 @@
         let mobileControl = null;
         let startBtn, addPlayerBtn, tasksInput, playerInput;
         let showAnswerBtn, acceptBtn, rejectBtn, continueBtn, newGameBtn;
+        let activeInputBox = null; // Для отслеживания активного поля ввода
 
         class Player {
             constructor(name) {
@@ -657,26 +658,17 @@
                 this.active = false;
             }
             
-            handleEvent(event, mouseX, mouseY) {
-                if (event.type === "mousedown" || event.type === "touchstart") {
-                    this.active = (
-                        mouseX >= this.x && 
-                        mouseX <= this.x + this.width && 
-                        mouseY >= this.y && 
-                        mouseY <= this.y + this.height
-                    );
-                }
-                
-                if (this.active && event.type === "keydown") {
-                    if (event.key === "Enter") {
-                        return true;
-                    } else if (event.key === "Backspace") {
-                        this.text = this.text.slice(0, -1);
-                    } else if (event.key.length === 1) {
-                        this.text += event.key;
-                    }
-                }
-                return false;
+            isPointInside(x, y) {
+                return x >= this.x && x <= this.x + this.width && 
+                       y >= this.y && y <= this.y + this.height;
+            }
+            
+            activate() {
+                this.active = true;
+            }
+            
+            deactivate() {
+                this.active = false;
             }
             
             draw(ctx) {
@@ -1260,12 +1252,27 @@
             const mouseY = event.clientY - rect.top;
             
             if (game.state === "SETUP") {
+                // Проверка клика по полям ввода
+                if (tasksInput.isPointInside(mouseX, mouseY)) {
+                    tasksInput.activate();
+                    playerInput.deactivate();
+                    activeInputBox = tasksInput;
+                } else if (playerInput.isPointInside(mouseX, mouseY)) {
+                    playerInput.activate();
+                    tasksInput.deactivate();
+                    activeInputBox = playerInput;
+                } else {
+                    tasksInput.deactivate();
+                    playerInput.deactivate();
+                    activeInputBox = null;
+                }
+
+                // Затем проверка кнопок
                 if (addPlayerBtn.isClicked(mouseX, mouseY)) {
                     if (game.addPlayer(playerInput.text)) {
                         playerInput.text = "";
                     }
-                }
-                else if (startBtn.isClicked(mouseX, mouseY)) {
+                } else if (startBtn.isClicked(mouseX, mouseY)) {
                     game.tasksCountInput = tasksInput.text;
                     if (game.startGame()) {
                         // Игра успешно начата
@@ -1273,17 +1280,7 @@
                 }
             }
             else if (game.state === "PLAYING") {
-                if (game.taskWindowOpen) {
-                    if (showAnswerBtn.isClicked(mouseX, mouseY)) {
-                        game.showAnswer = true;
-                    }
-                    else if (acceptBtn.isClicked(mouseX, mouseY)) {
-                        game.completeTask(true);
-                    }
-                    else if (rejectBtn.isClicked(mouseX, mouseY)) {
-                        game.completeTask(false);
-                    }
-                } else {
+                if (!game.taskWindowOpen) {
                     // Обработка выбора задания
                     const categoryWidth = (SCREEN_WIDTH - 100) / 4 - 10;
                     const tasksPerRow = 5;
@@ -1292,7 +1289,7 @@
                     for (let i = 0; i < 4; i++) {
                         const catX = 50 + i * (categoryWidth + 10);
                         
-                        // Кнопки листания
+                        // Проверка кнопок листания
                         if (game.taskOffset[i] > 0) {
                             const prevBtn = {
                                 x: catX + 10,
@@ -1342,6 +1339,17 @@
                             }
                         }
                     }
+                } else { // Если открыто окно задания
+                    // Обработка кнопок
+                    if (showAnswerBtn.isClicked(mouseX, mouseY)) {
+                        game.showAnswer = true;
+                    }
+                    else if (acceptBtn.isClicked(mouseX, mouseY)) {
+                        game.completeTask(true);
+                    }
+                    else if (rejectBtn.isClicked(mouseX, mouseY)) {
+                        game.completeTask(false);
+                    }
                 }
             }
             else if (game.state === "INTERMEDIATE_RESULTS") {
@@ -1360,12 +1368,29 @@
         }
 
         function handleKeyDown(event) {
-            if (game.state === "SETUP") {
-                if (tasksInput.handleEvent(event, 0, 0)) {
-                    // Enter pressed in tasks input
+            // Обработка ввода для активного поля
+            if (activeInputBox) {
+                if (event.key === "Backspace") {
+                    activeInputBox.text = activeInputBox.text.slice(0, -1);
+                } else if (event.key.length === 1) {
+                    // Для поля количества заданий разрешаем только цифры
+                    if (activeInputBox === tasksInput) {
+                        if (/^\d$/.test(event.key)) {
+                            activeInputBox.text += event.key;
+                        }
+                    } else {
+                        activeInputBox.text += event.key;
+                    }
                 }
-                if (playerInput.handleEvent(event, 0, 0)) {
-                    // Enter pressed in player input
+                event.preventDefault();
+            }
+            
+            // Обработка Enter в поле имени игрока
+            if (event.key === "Enter" && game.state === "SETUP") {
+                if (playerInput.active && playerInput.text.trim() !== "") {
+                    if (game.addPlayer(playerInput.text)) {
+                        playerInput.text = "";
+                    }
                 }
             }
         }
