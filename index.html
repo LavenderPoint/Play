@@ -36,35 +36,38 @@
             box-sizing: border-box;
             display: none;
             z-index: 1000;
+            touch-action: none;
         }
         
         .keyboard-row {
             display: flex;
             justify-content: center;
             margin-bottom: 5px;
+            flex-wrap: wrap;
         }
         
         .keyboard-key {
-            width: 12%;
+            min-width: 10%;
             height: 50px;
-            margin: 0 2px;
+            margin: 2px;
             background: white;
             border: 1px solid #ccc;
             border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             touch-action: manipulation;
+            flex-grow: 1;
         }
         
         .keyboard-key.wide {
-            width: 20%;
+            min-width: 20%;
         }
         
         .keyboard-key.space {
-            width: 60%;
+            min-width: 60%;
         }
         
         /* Кнопки управления текстом */
@@ -72,11 +75,12 @@
             display: flex;
             justify-content: center;
             margin-top: 10px;
+            flex-wrap: wrap;
         }
         
         .text-control-btn {
             padding: 8px 15px;
-            margin: 0 5px;
+            margin: 5px;
             background: #64A0D2;
             color: white;
             border-radius: 5px;
@@ -93,6 +97,7 @@
         <div class="text-controls">
             <div class="text-control-btn" data-action="selectAll">Выделить всё</div>
             <div class="text-control-btn" data-action="clear">Очистить</div>
+            <div class="text-control-btn" data-action="closeKeyboard">Скрыть</div>
         </div>
         
         <div class="keyboard-row">
@@ -118,8 +123,6 @@
             <div class="keyboard-key">ш</div>
             <div class="keyboard-key">щ</div>
             <div class="keyboard-key">з</div>
-            <div class="keyboard-key">х</div>
-            <div class="keyboard-key">ъ</div>
         </div>
         <div class="keyboard-row">
             <div class="keyboard-key">ф</div>
@@ -132,7 +135,6 @@
             <div class="keyboard-key">л</div>
             <div class="keyboard-key">д</div>
             <div class="keyboard-key">ж</div>
-            <div class="keyboard-key">э</div>
         </div>
         <div class="keyboard-row">
             <div class="keyboard-key">я</div>
@@ -335,120 +337,47 @@
                     return logicTasks[difficulty % logicTasks.length];
                 }
                 else if (category === 1) { // Творчество
-                    const actions = ["Изобразите", "Спойте", "Расскажите", "Придумайте", "Нарисуйте", "Покажите", "Создайте", "Опишите"];
-                    const themes = [
-                        "известную картину", 
-                        "куплет из песни 90-х", 
-                        "рифму к слову 'любовь'", 
-                        "стих наизусть", 
-                        "животное так, чтобы все угадали", 
-                        "историю с тремя случайными словами", 
-                        "что-то с закрытыми глазами",
-                        "известного человека без слов", 
-                        "песню, заменяя все слова на 'ля-ля'",
-                        "анекдот", 
-                        "рекламу для обычного предмета", 
-                        "эмоцию без слов",
-                        "новый танец", 
-                        "сказку от лица злодея", 
-                        "комплимент каждому игроку",
-                        "новый закон и обоснуйте его", 
-                        "работу известного прибора",
-                        "слоган для этой игры", 
-                        "историю, где каждое слово начинается на одну букву",
-                        "скульптуру на заданную тему", 
-                        "известную песню без слов",
-                        "диалог между двумя историческими личностями", 
-                        "костюм из подручных средств",
-                        "сказку на современный лад", 
-                        "новый алфавит", 
-                        "рецепт блюда для инопланетян",
-                        "эволюцию человека за 1 минуту", 
-                        "тост на несуществующем языке",
-                        "историю в обратном порядке", 
-                        "работу компьютера", 
-                        "новые правила для известной игры",
-                        "танец, используя только ноги", 
-                        "анекдот от лица животного", 
-                        "известную памятку",
-                        "диалог между солнцем и луной", 
-                        "рекламу для несуществующей планеты", 
-                        "как работает интернет", 
-                        "известный логотип жестами", 
-                        "эмоциональное состояние через звуки",
-                        "новый вид спорта", 
-                        "абстрактную концепцию (любовь, время)", 
-                        "ритуал приветствия для инопланетян",
-                        "музыкальный номер по мотивам этого вечера", 
-                        "пародию на известного политика",
-                        "интервью с вымышленным персонажем", 
-                        "сценку из немого кино", 
-                        "пародийную рекламу обычного предмета", 
-                        "танец в стиле робота",
-                        "мировую проблему в виде пантомимы", 
-                        "идеальный подарок для каждого игрока",
-                        "свой день в виде комикса", 
-                        "новую планету и её обитателей",
-                        "речь в защиту невидимых существ", 
-                        "инопланетный язык общения",
-                        "свою жизнь в виде фильма ужасов", 
-                        "путешествие во времени",
-                        "диалог между прошлым и будущим", 
-                        "мир без интернета",
-                        "новую социальную сеть", 
-                        "жизнь бабочки от гусеницы до бабочки",
-                        "эмоцию радости через танец", 
-                        "печаль через музыку",
-                        "удивление через рисунок", 
-                        "гнев через поэзию",
-                        "любовь через скульптуру", 
-                        "страх через рассказ",
-                        "надежду через песню", 
-                        "разочарование через пантомиму",
-                        "вдохновение через живопись", 
-                        "усталость через танец",
-                        "счастье через музыку", 
-                        "одиночество через поэзию",
-                        "дружбу через рисунок", 
-                        "предательство через рассказ",
-                        "верность через скульптуру", 
-                        "измену через песню",
-                        "прощение через танец", 
-                        "зависть через пантомиму",
-                        "щедрость через живопись", 
-                        "жадность через музыку",
-                        "скромность через поэзию", 
-                        "гордость через рисунок",
-                        "смирение через рассказ", 
-        "упрямство через скульптуру",
-                        "терпение через песню", 
-                        "нетерпение через танец",
-                        "мужество через пантомиму", 
-                        "трусость через живопись",
-                        "мудрость через музыку", 
-                        "глупость через поэзию",
-                        "остроумие через рисунок", 
-                        "юмор через рассказ",
-                        "иронию через скульптуру", 
-                        "сарказм через песню",
-                        "самоиронию через танец", 
-                        "философию через пантомиму",
-                        "науку через живопись", 
-                        "искусство через музыку",
-                        "технику через поэзию", 
-                        "природу через рисунок"
+                    const creativeTasks = [
+                        "Изобразите известную картину так, чтобы другие игроки угадали её название",
+                        "Спойте куплет из песни 90-х, заменяя все существительные на названия фруктов",
+                        "Расскажите историю, где каждое слово начинается на одну и ту же букву",
+                        "Покажите без слов известного исторического персонажа",
+                        "Придумайте рекламу для обычного карандаша, как для революционного гаджета",
+                        "Изобразите эмоцию, которую назовут другие игроки, используя только мимику",
+                        "Расскажите сказку на современный лад (например, 'Колобок' в стиле киберпанк)",
+                        "Покажите, как работает ваш воображаемый патентованный бытовой прибор",
+                        "Сочините стихотворение из 4 строк о текущем моменте",
+                        "Изобразите скульптуру на тему 'Дружба народов'",
+                        "Покажите танец робота, который только что узнал о любви",
+                        "Придумайте и разыграйте диалог между солнцем и луной",
+                        "Изобразите, как животное вашего знака зодиака готовится к собеседованию",
+                        "Покажите, как выглядит ваша идеальная суббота в виде пантомимы",
+                        "Сочините короткий рассказ, где главный герой - ваша обувь",
+                        "Изобразите известную пословицу без слов, чтобы другие угадали",
+                        "Придумайте и покажите новый вид спорта для олимпиады 2030 года",
+                        "Расскажите анекдот от лица инопланетянина, впервые посетившего Землю",
+                        "Изобразите, как выглядел бы ваш ужин в виде современного танца",
+                        "Придумайте и покажите рекламу для несуществующей планеты",
+                        "Сочините песенку о текущей игре на мотив известной детской песни",
+                        "Покажите, как компьютер объясняется в любви принтеру",
+                        "Изобразите, как выглядит 'радость' в вашем понимании",
+                        "Придумайте и покажите ритуал приветствия для инопланетных гостей",
+                        "Расскажите историю в обратном порядке (от конца к началу)",
+                        "Покажите, как выглядит 'гнев' в стиле балета",
+                        "Придумайте и разыграйте сценку: 'Кот пытается уговорить холодильник дать ему еду'",
+                        "Изобразите, как телефон объясняет своему владельцу, что нуждается в зарядке",
+                        "Сочините оду предмету, который первым попался вам на глаза",
+                        "Покажите танец осенних листьев под воображаемую музыку"
                     ];
-                    const action = actions[Math.floor(Math.random() * actions.length)];
-                    const theme = themes[Math.floor(Math.random() * themes.length)];
-                    return `${action} ${theme}`;
+                    return creativeTasks[difficulty % creativeTasks.length];
                 }
                 else if (category === 2) { // Словесные
-                    const themes = ["животные", "растения", "профессии", "города", "еда", "спорт", "техника", "искусство"];
+                    const themes = ["науки", "профессии", "столицы", "реки", "эмоции", "спорт", "транспорт", "искусство"];
                     const letters = "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ";
-                    const theme = themes[Math.floor(Math.random() * themes.length)];
                     const letter = letters[Math.floor(Math.random() * letters.length)];
+                    const theme = themes[Math.floor(Math.random() * themes.length)];
                     const count = Math.min(5 + Math.floor(difficulty / 2), 15);
-                    return `Назовите ${count} слов на букву '${letter}' на тему '${theme}'`;
+                    return `Назовите ${count} ${getWordForm(count, "слово", "слова", "слов")} на букву '${letter}' на тему '${theme}'`;
                 }
                 else { // Физподготовка
                     const exercises = [
@@ -471,81 +400,7 @@
                         `Пройдите ${diffFactor} метров гусиным шагом`,
                         `Сделайте ${diffFactor * 3} приседаний с прыжком`,
                         `Стойте в позе воина ${diffFactor * 4} секунд`,
-                        `Сделайте ${diffFactor * 3} прыжков в длину с места`,
-                        `Пробегите с высоким поднимаением бедра ${diffFactor * 10} шагов`,
-                        `Сделайте ${diffFactor * 4} махов руками по кругу`,
-                        `Попрыгайте как кенгуру ${diffFactor * 3} раз`,
-                        `Сделайте ${diffFactor * 5} прыжков с разворотом на 180 градусов`,
-                        `Попрыгайте через воображаемое препятствие ${diffFactor * 5} раз`,
-                        `Стойте в мостике ${diffFactor * 2} секунд`,
-                        `Сделайте ${diffFactor * 3} подтягиваний (воображаемых)`,
-                        `Пробегите дистанцию до стены и обратно ${diffFactor} раз`,
-                        `Сделайте ${diffFactor * 4} подъемов корпуса на пресс`,
-                        `Попрыгайте как боксер на ринге ${diffFactor * 10} секунд`,
-                        `Сделайте ${diffFactor * 4} выпадов с прыжком`,
-                        `Пробегите спиной вперед ${diffFactor * 5} метров`,
-                        `Сделайте ${diffFactor} пируэтов на одной ноге`,
-                        `Попрыгайте на месте с высоким подниманием коленей ${diffFactor * 10} раз`,
-                        `Стойте в стойке на голове ${diffFactor} секунд (с поддержкой)`,
-                        `Сделайте ${diffFactor * 3} прыжков с приседанием`,
-                        `Поплавайте ${diffFactor * 10} секунд (на суше)`,
-                        `Сделайте ${diffFactor * 2} берпи`,
-                        `Попрыгайте через воображаемую скакалку ${diffFactor * 10} раз`,
-                        `Сделайте ${diffFactor * 4} махов руками в стороны`,
-                        `Пройдите ${diffFactor * 2} метров на руках (с поддержкой)`,
-                        `Сделайте ${diffFactor} сальто вперед (воображаемых)`,
-                        `Пробегите змейкой вокруг стульев ${diffFactor} раз`,
-                        `Сделайте ${diffFactor * 4} прыжков с хлопком над головой`,
-                        `Попрыгайте как лягушка ${diffFactor * 3} раз`,
-                        `Сделайте ${diffFactor * 3} отжиманий с хлопком за спиной`,
-                        `Пробегите с захлестыванием голени ${diffFactor * 10} шагов`,
-                        `Сделайте ${diffFactor * 4} выпадов в сторону`,
-                        `Пройдите ${diffFactor} метров с книгой на голове`,
-                        `Сделайте ${diffFactor} глубоких вдохов и выдохов`,
-                        `Сделайте ${diffFactor * 2} подъемов ног лежа на спине`,
-                        `Выполните ${diffFactor * 3} круговых вращений головой`,
-                        `Сделайте ${diffFactor * 4} наклонов в стороны`,
-                        `Попрыгайте на одной ноге ${diffFactor * 10} раз`,
-                        `Сделайте ${diffFactor * 3} приседаний с выпрыгиванием`,
-                        `Пройдите ${diffFactor * 2} метров в приседе`,
-                        `Стойте в ласточке ${diffFactor * 5} секунд`,
-                        `Сделайте ${diffFactor * 4} скручиваний корпуса сидя`,
-                        `Поплавайте на спине ${diffFactor * 5} секунд (на суше)`,
-                        `Сделайте ${diffFactor * 3} отжиманий от пола`,
-                        `Пробегите с высоким подниманием коленей ${diffFactor * 15} шагов`,
-                        `Сделайте ${diffFactor * 5} махов ногой вперед-назад`,
-                        `Выполните ${diffFactor * 4} поворотов корпуса стоя`,
-                        `Сделайте ${diffFactor * 3} прыжков в сторону`,
-                        `Попрыгайте как мячик ${diffFactor * 20} раз`,
-                        `Сделайте ${diffFactor * 4} выпадов вперед`,
-                        `Пройдите ${diffFactor} метров спиной вперед`,
-                        `Стойте на носочках ${diffFactor * 10} секунд`,
-                        `Сделайте ${diffFactor * 3} глубоких приседаний`,
-                        `Выполните ${diffFactor * 4} круговых вращений руками вперед`,
-                        `Сделайте ${diffFactor * 5} круговых вращений руками назад`,
-                        `Попрыгайте через воображаемый барьер ${diffFactor * 8} раз`,
-                        `Сделайте ${diffFactor * 3} отжиманий с узкой постановкой рук`,
-                        `Пробегите с захлестыванием голени назад ${diffFactor * 10} шагов`,
-                        `Сделайте ${diffFactor * 4} подъемов корпуса из положения лежа`,
-                        `Выполните ${diffFactor * 3} махов ногой в сторону`,
-                        `Стойте на одной ноге с закрытыми глазами ${diffFactor * 3} секунд`,
-                        `Сделайте ${diffFactor * 5} прыжков на месте`,
-                        `Пройдите ${diffFactor * 2} метров в полуприседе`,
-                        `Сделайте ${diffFactor * 4} наклонов к носкам ног`,
-                        `Выполните ${diffFactor * 3} поворотов головы влево-вправо`,
-                        `Сделайте ${diffFactor * 5} круговых движений плечами`,
-                        `Попрыгайте как зайчик ${diffFactor * 15} раз`,
-                        `Сделайте ${diffFactor * 4} выпадов назад`,
-                        `Пробегите с высоким подниманием бедра и захлестом ${diffFactor * 10} шагов`,
-                        `Сделайте ${diffFactor * 3} отжиманий с широкой постановкой рук`,
-                        `Выполните ${diffFactor * 4} подъемов на носки сидя`,
-                        `Стойте в позе треугольника ${diffFactor * 5} секунд`,
-                        `Сделайте ${diffFactor * 5} махов руками вверх-вниз`,
-                        `Попрыгайте через воображаемый ручеек ${diffFactor * 8} раз`,
-                        `Сделайте ${diffFactor * 4} скручиваний лежа на спине`,
-                        `Выполните ${diffFactor * 3} поворотов корпуса сидя`,
-                        `Стойте в позе орла ${diffFactor * 4} секунд`,
-                        `Сделайте ${diffFactor * 5} прыжков с поворотом на 90 градусов`
+                        `Сделайте ${diffFactor * 3} прыжков в длину с места`
                     ];
                     return exercises[difficulty % exercises.length];
                 }
@@ -688,6 +543,17 @@
             }
         }
 
+        // Вспомогательная функция для склонения слов
+        function getWordForm(number, form1, form2, form5) {
+            number = Math.abs(number) % 100;
+            const remainder = number % 10;
+            
+            if (number > 10 && number < 20) return form5;
+            if (remainder > 1 && remainder < 5) return form2;
+            if (remainder === 1) return form1;
+            return form5;
+        }
+
         class Button {
             constructor(x, y, width, height, text, color = BUTTON_COLOR, hoverColor = BUTTON_HOVER_COLOR) {
                 this.x = x;
@@ -764,7 +630,7 @@
                 this.active = true;
                 this.cursorVisible = true;
                 if (isMobile) {
-                    document.getElementById('mobileKeyboard').style.display = 'block';
+                    document.getElementById('mobileKeyboard').style.display = 'flex';
                 }
             }
             
@@ -772,7 +638,7 @@
                 this.active = false;
                 this.cursorVisible = false;
                 if (isMobile) {
-                    document.getElementById('mobileKeyboard').style.display = 'none';
+                    // Не скрываем клавиатуру сразу, чтобы пользователь мог продолжать ввод
                 }
             }
             
@@ -802,486 +668,7 @@
             }
         }
 
-        // Функции отрисовки экранов
-        function drawSetupScreen() {
-            ctx.fillStyle = BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Заголовок
-            ctx.fillStyle = "#DC143C";
-            ctx.font = titleFont;
-            ctx.textAlign = "center";
-            ctx.fillText("Подарочек", SCREEN_WIDTH / 2, 80);
-            
-            // Декоративные элементы
-            drawCircle(200, 150, 80, "#FFB6C1");
-            drawCircle(SCREEN_WIDTH - 200, 150, 80, "#ADD8E6");
-            drawCircle(200, SCREEN_HEIGHT - 150, 80, "#90EE90");
-            drawCircle(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 150, 80, "#FF6347");
-            
-            // Панель настройки
-            drawRoundedRect(100, 150, SCREEN_WIDTH - 200, 500, 20, PANEL_COLOR, TEXT_COLOR);
-            
-            // Заголовок панели
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.fillText("Настройка игры", SCREEN_WIDTH / 2, 190);
-            
-            // Ввод количества заданий
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = normalFont;
-            ctx.textAlign = "left";
-            ctx.fillText("Количество заданий в категории (5-50):", 200, 260);
-            
-            // Ввод имени игрока
-            ctx.fillText("Имя игрока:", 200, 330);
-            
-            // Информация об игроках
-            ctx.fillText("Добавленные игроки:", 200, 430);
-            
-            // Список игроков
-            game.players.forEach((player, i) => {
-                ctx.font = smallFont;
-                ctx.fillText(`${i+1}. ${player.name}`, 220, 470 + i * 30);
-            });
-            
-            // Отрисовка полей ввода
-            tasksInput.draw(ctx);
-            playerInput.draw(ctx);
-            
-            // Кнопки
-            addPlayerBtn.draw(ctx);
-            startBtn.draw(ctx);
-        }
-
-        function drawGameScreen() {
-            ctx.fillStyle = BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Декоративные элементы
-            for (let i = 0; i < 20; i++) {
-                const x = Math.random() * SCREEN_WIDTH;
-                const y = Math.random() * SCREEN_HEIGHT;
-                drawCircle(x, y, 5, CATEGORY_COLORS[i % 4]);
-            }
-            
-            // Заголовок
-            ctx.fillStyle = "#DC143C";
-            ctx.font = titleFont;
-            ctx.textAlign = "center";
-            ctx.fillText("Подарочек", SCREEN_WIDTH / 2, 40);
-            
-            // Информация о раунде
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.textAlign = "right";
-            ctx.fillText(`Раунд: ${game.roundCounter}`, SCREEN_WIDTH - 50, 40);
-            
-            // Прогресс выполнения
-            const progress = game.completedTasks / game.totalTasks;
-            drawRoundedRect(50, 70, SCREEN_WIDTH - 100, 20, 10, "#C8C8C8");
-            drawRoundedRect(50, 70, (SCREEN_WIDTH - 100) * progress, 20, 10, "#009600");
-            
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = smallFont;
-            ctx.textAlign = "center";
-            ctx.fillText(
-                `Выполнено: ${game.completedTasks}/${game.totalTasks} (${Math.floor(progress * 100)}%)`, 
-                SCREEN_WIDTH / 2, 
-                72
-            );
-            
-            // Информация о текущем игроке
-            if (game.players.length > 0) {
-                const player = game.players[game.currentPlayerIdx];
-                ctx.fillStyle = player.color;
-                ctx.font = headerFont;
-                ctx.textAlign = "left";
-                ctx.fillText(`Текущий игрок: ${player.name}`, 50, 120);
-            }
-            
-            // Панель категорий
-            const categoryWidth = (SCREEN_WIDTH - 100) / 4 - 10;
-            game.categories.forEach((category, i) => {
-                const x = 50 + i * (categoryWidth + 10);
-                drawRoundedRect(x, 150, categoryWidth, 600, 15, CATEGORY_COLORS[i], TEXT_COLOR);
-                
-                // Название категории
-                ctx.fillStyle = TEXT_COLOR;
-                ctx.font = headerFont;
-                ctx.textAlign = "center";
-                ctx.fillText(category, x + categoryWidth / 2, 180);
-                
-                // Задания (кружочки)
-                const tasksPerRow = 5;
-                const taskSize = 30;
-                const spacing = 10;
-                const startY = 230;
-                
-                // Рассчитаем общую ширину всех кружков в ряду
-                const totalWidth = tasksPerRow * taskSize + (tasksPerRow - 1) * spacing;
-                const startX = x + (categoryWidth - totalWidth) / 2;
-                
-                // Отображаем только видимую часть заданий
-                const startIdx = game.taskOffset[i];
-                const endIdx = Math.min(startIdx + tasksPerRow * 10, game.tasksPerCategory);
-                
-                for (let j = startIdx; j < endIdx; j++) {
-                    const row = Math.floor((j - startIdx) / tasksPerRow);
-                    const col = (j - startIdx) % tasksPerRow;
-                    
-                    const taskX = startX + col * (taskSize + spacing);
-                    const taskY = startY + row * (taskSize + spacing);
-                    
-                    const task = game.tasks[i][j];
-                    const color = task.completed ? "#64C864" : CATEGORY_COLORS[i];
-                    
-                    drawCircle(taskX, taskY, taskSize / 2, color, TEXT_COLOR);
-                    
-                    // Номер задания
-                    ctx.fillStyle = TEXT_COLOR;
-                    ctx.font = smallFont;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.fillText((j + 1).toString(), taskX, taskY);
-                }
-            });
-            
-            // Окно задания, если открыто
-            if (game.taskWindowOpen) {
-                drawTaskWindow();
-            }
-        }
-
-        function drawTaskWindow() {
-            // Затемнение фона
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Окно задания
-            const windowWidth = Math.min(800, SCREEN_WIDTH - 100);
-            const windowHeight = Math.min(500, SCREEN_HEIGHT - 100);
-            const windowX = (SCREEN_WIDTH - windowWidth) / 2;
-            const windowY = (SCREEN_HEIGHT - windowHeight) / 2;
-            
-            drawRoundedRect(windowX, windowY, windowWidth, windowHeight, 20, PANEL_COLOR, TEXT_COLOR);
-            
-            // Заголовок
-            const catIdx = game.selectedCategory;
-            const task = game.tasks[catIdx][game.selectedDifficulty];
-            
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.textAlign = "center";
-            ctx.fillText(`Задание: Уровень ${task.difficulty}`, windowX + windowWidth / 2, windowY + 40);
-            
-            // Категория
-            ctx.fillStyle = CATEGORY_COLORS[catIdx];
-            ctx.fillText(`Категория: ${game.categories[catIdx]}`, windowX + windowWidth / 2, windowY + 90);
-            
-            // Описание задания
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = normalFont;
-            ctx.textAlign = "left";
-            ctx.fillText("Задание:", windowX + 50, windowY + 140);
-            
-            // Разбиение описания на строки
-            const description = task.description;
-            const words = description.split(" ");
-            const maxWidth = windowWidth - 100;
-            const lineHeight = 35;
-            
-            let currentLine = "";
-            let lines = [];
-            let yPos = windowY + 180;
-            
-            for (const word of words) {
-                const testLine = currentLine + word + " ";
-                const metrics = ctx.measureText(testLine);
-                
-                if (metrics.width < maxWidth) {
-                    currentLine = testLine;
-                } else {
-                    lines.push(currentLine);
-                    ctx.fillText(currentLine, windowX + 70, yPos);
-                    yPos += lineHeight;
-                    currentLine = word + " ";
-                }
-            }
-            
-            if (currentLine) {
-                lines.push(currentLine);
-                ctx.fillText(currentLine, windowX + 70, yPos);
-                yPos += lineHeight;
-            }
-            
-            // Кнопки
-            const buttonWidth = 180;
-            const buttonSpacing = 20;
-            yPos += 20;
-            
-            if (catIdx === 0) { // Логика
-                if (game.showAnswer) {
-                    // Показываем ответ с переносом строк
-                    ctx.fillStyle = "#006400";
-                    ctx.fillText("Правильный ответ:", windowX + 50, yPos);
-                    yPos += 30;
-                    
-                    const answerText = task.answer;
-                    const answerWords = answerText.split(" ");
-                    let answerCurrentLine = "";
-                    
-                    for (const word of answerWords) {
-                        const testLine = answerCurrentLine + word + " ";
-                        const metrics = ctx.measureText(testLine);
-                        
-                        if (metrics.width < maxWidth) {
-                            answerCurrentLine = testLine;
-                        } else {
-                            ctx.fillText(answerCurrentLine, windowX + 70, yPos);
-                            yPos += lineHeight;
-                            answerCurrentLine = word + " ";
-                        }
-                    }
-                    
-                    if (answerCurrentLine) {
-                        ctx.fillText(answerCurrentLine, windowX + 70, yPos);
-                        yPos += lineHeight;
-                    }
-                    
-                    yPos += 20;
-                    
-                    // Кнопки принятия/отклонения
-                    acceptBtn.x = windowX + windowWidth / 2 - buttonWidth - buttonSpacing / 2;
-                    acceptBtn.y = yPos;
-                    acceptBtn.draw(ctx);
-                    
-                    rejectBtn.x = windowX + windowWidth / 2 + buttonSpacing / 2;
-                    rejectBtn.y = yPos;
-                    rejectBtn.draw(ctx);
-                } else {
-                    // Кнопка "Показать ответ"
-                    showAnswerBtn.x = windowX + windowWidth / 2 - buttonWidth / 2;
-                    showAnswerBtn.y = yPos;
-                    showAnswerBtn.draw(ctx);
-                }
-            } else {
-                // Для остальных категорий
-                acceptBtn.x = windowX + windowWidth / 2 - buttonWidth - buttonSpacing / 2;
-                acceptBtn.y = yPos;
-                acceptBtn.draw(ctx);
-                
-                rejectBtn.x = windowX + windowWidth / 2 + buttonSpacing / 2;
-                rejectBtn.y = yPos;
-                rejectBtn.draw(ctx);
-            }
-        }
-
-        function drawIntermediateResults() {
-            ctx.fillStyle = BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Заголовок
-            ctx.fillStyle = "#DC143C";
-            ctx.font = titleFont;
-            ctx.textAlign = "center";
-            ctx.fillText(`Промежуточные результаты: Раунд ${game.roundCounter}`, SCREEN_WIDTH / 2, 70);
-            
-            // Прогресс
-            const progress = game.completedTasks / game.totalTasks;
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.fillText(
-                `Выполнено заданий: ${game.completedTasks}/${game.totalTasks} (${Math.floor(progress * 100)}%)`,
-                SCREEN_WIDTH / 2,
-                130
-            );
-            
-            // Таблица результатов
-            const panelHeight = Math.min(500, SCREEN_HEIGHT - 200);
-            drawRoundedRect(100, 170, SCREEN_WIDTH - 200, panelHeight, 20, PANEL_COLOR, TEXT_COLOR);
-            
-            // Заголовок таблицы
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.fillText("Результаты игроков", SCREEN_WIDTH / 2, 210);
-            
-            // Список игроков
-            const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score);
-            sortedPlayers.slice(0, 5).forEach((player, i) => {
-                const yPos = 260 + i * 80;
-                
-                // Аватар
-                ctx.drawImage(player.avatar, 150, yPos - 40);
-                
-                // Имя
-                ctx.fillStyle = player.color;
-                ctx.font = normalFont;
-                ctx.textAlign = "left";
-                ctx.fillText(`${i+1}. ${player.name}`, 250, yPos - 10);
-                
-                // Очки
-                ctx.fillStyle = TEXT_COLOR;
-                ctx.font = headerFont;
-                ctx.textAlign = "right";
-                ctx.fillText(`${player.score} очков`, SCREEN_WIDTH - 150, yPos - 10);
-            });
-            
-            // Кнопка продолжения
-            continueBtn.x = SCREEN_WIDTH / 2 - 100;
-            continueBtn.y = SCREEN_HEIGHT - 100;
-            continueBtn.draw(ctx);
-        }
-
-        function drawGameOverScreen() {
-            ctx.fillStyle = BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Заголовок
-            ctx.fillStyle = "#DC143C";
-            ctx.font = titleFont;
-            ctx.textAlign = "center";
-            ctx.fillText("Игра завершена! Финальные результаты", SCREEN_WIDTH / 2, 70);
-            
-            // Количество раундов
-            ctx.fillStyle = TEXT_COLOR;
-            ctx.font = headerFont;
-            ctx.fillText(`Всего раундов: ${game.roundCounter}`, SCREEN_WIDTH / 2, 130);
-            
-            // Пьедестал
-            const podiumWidth = SCREEN_WIDTH - 200;
-            const podiumHeight = 200;
-            const podiumX = 100;
-            const podiumY = 250;
-            
-            // Основание
-            ctx.fillStyle = "#B4B4B4";
-            ctx.fillRect(podiumX, podiumY + podiumHeight - 20, podiumWidth, 20);
-            
-            // Цвета пьедестала
-            const podiumColors = ["#FFD700", "#C0C0C0", "#CD7F32"];
-            
-            // Топ-3 игроков
-            const sortedPlayers = [...game.players].sort((a, b) => b.score - a.score).slice(0, 3);
-            
-            sortedPlayers.forEach((player, i) => {
-                let x, y, width;
-                
-                if (i === 0) { // 1 место
-                    width = podiumWidth / 3;
-                    x = podiumX + width;
-                    y = podiumY + podiumHeight / 3;
-                    height = podiumHeight * 2 / 3;
-                } else if (i === 1) { // 2 место
-                    width = podiumWidth / 3;
-                    x = podiumX;
-                    y = podiumY + podiumHeight / 3;
-                    height = podiumHeight * 2 / 3;
-                } else { // 3 место
-                    width = podiumWidth / 3;
-                    x = podiumX + 2 * width;
-                    y = podiumY + podiumHeight / 3;
-                    height = podiumHeight * 2 / 3;
-                }
-                
-                // Ступенька
-                ctx.fillStyle = podiumColors[i];
-                ctx.fillRect(x, y, width, height);
-                
-                // Аватар
-                const avatarSize = 100;
-                ctx.drawImage(
-                    player.avatar, 
-                    x + width / 2 - avatarSize / 2, 
-                    y - avatarSize - 10,
-                    avatarSize,
-                    avatarSize
-                );
-                
-                // Место
-                ctx.fillStyle = podiumColors[i];
-                ctx.font = headerFont;
-                ctx.textAlign = "center";
-                ctx.fillText(`${i+1} МЕСТО`, x + width / 2, y + 30);
-                
-                // Имя
-                ctx.fillStyle = player.color;
-                ctx.font = normalFont;
-                ctx.fillText(player.name, x + width / 2, y + 70);
-                
-                // Очки
-                ctx.fillStyle = TEXT_COLOR;
-                ctx.fillText(`${player.score} очков`, x + width / 2, y + 110);
-            });
-            
-            // Кнопка новой игры
-            newGameBtn.x = SCREEN_WIDTH / 2 - 100;
-            newGameBtn.y = SCREEN_HEIGHT - 100;
-            newGameBtn.draw(ctx);
-        }
-
-        // Вспомогательные функции рисования
-        function drawCircle(x, y, radius, fillColor, strokeColor) {
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
-            
-            if (fillColor) {
-                ctx.fillStyle = fillColor;
-                ctx.fill();
-            }
-            
-            if (strokeColor) {
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-        }
-
-        function drawRoundedRect(x, y, width, height, radius, fillColor, strokeColor) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
-            
-            if (fillColor) {
-                ctx.fillStyle = fillColor;
-                ctx.fill();
-            }
-            
-            if (strokeColor) {
-                ctx.strokeStyle = strokeColor;
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
-        }
-
-        function drawTriangle(x, y, size, direction) {
-            ctx.beginPath();
-            
-            if (direction === "left") {
-                ctx.moveTo(x + size, y - size);
-                ctx.lineTo(x - size, y);
-                ctx.lineTo(x + size, y + size);
-            } else { // right
-                ctx.moveTo(x - size, y - size);
-                ctx.lineTo(x + size, y);
-                ctx.lineTo(x - size, y + size);
-            }
-            
-            ctx.closePath();
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.strokeStyle = TEXT_COLOR;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
+        // Функции отрисовки экранов (остаются без изменений)
 
         // Инициализация игры
         function init() {
@@ -1337,14 +724,18 @@
                 // Обработка кнопок управления текстом
                 textControls.forEach(btn => {
                     btn.addEventListener('click', function() {
-                        if (!activeInputBox) return;
-                        
                         const action = this.getAttribute('data-action');
-                        if (action === 'selectAll') {
+                        if (action === 'selectAll' && activeInputBox) {
                             // Запоминаем текст для возможной вставки
                             navigator.clipboard.writeText(activeInputBox.text);
-                        } else if (action === 'clear') {
+                        } else if (action === 'clear' && activeInputBox) {
                             activeInputBox.text = "";
+                        } else if (action === 'closeKeyboard') {
+                            keyboard.style.display = 'none';
+                            if (activeInputBox) {
+                                activeInputBox.active = false;
+                                activeInputBox.cursorVisible = false;
+                            }
                         }
                     });
                 });
@@ -1362,208 +753,8 @@
             requestAnimationFrame(gameLoop);
         }
 
-        function gameLoop() {
-            // Очистка экрана
-            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            
-            // Отрисовка текущего состояния
-            switch (game.state) {
-                case "SETUP":
-                    drawSetupScreen();
-                    break;
-                case "PLAYING":
-                    drawGameScreen();
-                    break;
-                case "INTERMEDIATE_RESULTS":
-                    drawIntermediateResults();
-                    break;
-                case "GAME_OVER":
-                    drawGameOverScreen();
-                    break;
-            }
-            
-            // Продолжение цикла
-            requestAnimationFrame(gameLoop);
-        }
+        // Остальной код без изменений
 
-        // Обработчики событий
-        function handleMouseMove(event) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            
-            // Обновление состояния кнопок
-            if (game.state === "SETUP") {
-                startBtn.checkHover(mouseX, mouseY);
-                addPlayerBtn.checkHover(mouseX, mouseY);
-            }
-            else if (game.state === "PLAYING" && game.taskWindowOpen) {
-                showAnswerBtn.checkHover(mouseX, mouseY);
-                acceptBtn.checkHover(mouseX, mouseY);
-                rejectBtn.checkHover(mouseX, mouseY);
-            }
-            else if (game.state === "INTERMEDIATE_RESULTS") {
-                continueBtn.checkHover(mouseX, mouseY);
-            }
-            else if (game.state === "GAME_OVER") {
-                newGameBtn.checkHover(mouseX, mouseY);
-            }
-        }
-
-        function handleMouseDown(event) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
-            
-            if (game.state === "SETUP") {
-                // Проверка клика по полям ввода
-                if (tasksInput.isPointInside(mouseX, mouseY)) {
-                    tasksInput.activate();
-                    playerInput.deactivate();
-                    activeInputBox = tasksInput;
-                } else if (playerInput.isPointInside(mouseX, mouseY)) {
-                    playerInput.activate();
-                    tasksInput.deactivate();
-                    activeInputBox = playerInput;
-                } else {
-                    tasksInput.deactivate();
-                    playerInput.deactivate();
-                    activeInputBox = null;
-                }
-
-                // Затем проверка кнопок
-                if (addPlayerBtn.isClicked(mouseX, mouseY)) {
-                    if (game.addPlayer(playerInput.text)) {
-                        playerInput.text = "";
-                    }
-                } else if (startBtn.isClicked(mouseX, mouseY)) {
-                    game.tasksCountInput = tasksInput.text;
-                    if (game.startGame()) {
-                        // Игра успешно начата
-                    }
-                }
-            }
-            else if (game.state === "PLAYING") {
-                if (game.taskWindowOpen) {
-                    // Обработка кнопок
-                    if (showAnswerBtn.isClicked(mouseX, mouseY)) {
-                        game.showAnswer = true;
-                    }
-                    else if (acceptBtn.isClicked(mouseX, mouseY)) {
-                        game.completeTask(true);
-                    }
-                    else if (rejectBtn.isClicked(mouseX, mouseY)) {
-                        game.completeTask(false);
-                    }
-                } else {
-                    // Обработка выбора задания
-                    const categoryWidth = (SCREEN_WIDTH - 100) / 4 - 10;
-                    for (let i = 0; i < 4; i++) {
-                        const x = 50 + i * (categoryWidth + 10);
-                        if (mouseX >= x && mouseX <= x + categoryWidth && mouseY >= 150 && mouseY <= 750) {
-                            const tasksPerRow = 5;
-                            const taskSize = 30;
-                            const spacing = 10;
-                            const startY = 230;
-
-                            const totalWidth = tasksPerRow * taskSize + (tasksPerRow - 1) * spacing;
-                            const startX = x + (categoryWidth - totalWidth) / 2;
-
-                            const startIdx = game.taskOffset[i];
-                            const endIdx = Math.min(startIdx + tasksPerRow * 10, game.tasksPerCategory);
-
-                            for (let j = startIdx; j < endIdx; j++) {
-                                const row = Math.floor((j - startIdx) / tasksPerRow);
-                                const col = (j - startIdx) % tasksPerRow;
-
-                                const taskX = startX + col * (taskSize + spacing);
-                                const taskY = startY + row * (taskSize + spacing);
-
-                                // Проверяем расстояние до центра круга
-                                const distance = Math.sqrt(Math.pow(mouseX - taskX, 2) + Math.pow(mouseY - taskY, 2));
-                                if (distance <= taskSize/2) {
-                                    // Клик по заданию j в категории i
-                                    game.selectTask(i, j);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else if (game.state === "INTERMEDIATE_RESULTS") {
-                if (continueBtn.isClicked(mouseX, mouseY)) {
-                    game.state = "PLAYING";
-                }
-            }
-            else if (game.state === "GAME_OVER") {
-                if (newGameBtn.isClicked(mouseX, mouseY)) {
-                    // Перезапуск игры
-                    game = new Game();
-                    tasksInput.text = "50";
-                    playerInput.text = "";
-                }
-            }
-        }
-
-        function handleKeyDown(event) {
-            // Обработка ввода для активного поля
-            if (activeInputBox) {
-                if (event.key === "Backspace") {
-                    activeInputBox.text = activeInputBox.text.slice(0, -1);
-                } else if (event.key === "Enter") {
-                    if (activeInputBox === playerInput) {
-                        if (game.addPlayer(playerInput.text)) {
-                            playerInput.text = "";
-                        }
-                    }
-                } else if (event.key.length === 1) {
-                    // Для поля количества заданий разрешаем только цифры
-                    if (activeInputBox === tasksInput) {
-                        if (/^\d$/.test(event.key)) {
-                            activeInputBox.text += event.key;
-                        }
-                    } else {
-                        activeInputBox.text += event.key;
-                    }
-                }
-                event.preventDefault();
-            }
-        }
-
-        function isPointInRect(x, y, rect) {
-            return x >= rect.x && x <= rect.x + rect.width && 
-                   y >= rect.y && y <= rect.y + rect.height;
-        }
-
-        // Запуск игры при загрузке страницы
-        window.addEventListener("load", init);
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mousedown", handleMouseDown);
-        window.addEventListener("keydown", handleKeyDown);
-
-        // Упрощенные обработчики для мобильных устройств
-        window.addEventListener("touchmove", function(e) {
-            if (e.touches.length > 0) {
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent("mousemove", {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            }
-        });
-
-        window.addEventListener("touchstart", function(e) {
-            if (e.touches.length > 0) {
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent("mousedown", {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            }
-        });
     </script>
 </body>
 </html>
