@@ -632,13 +632,14 @@
                 if (isMobile) {
                     document.getElementById('mobileKeyboard').style.display = 'flex';
                 }
+                activeInputBox = this;
             }
             
             deactivate() {
                 this.active = false;
                 this.cursorVisible = false;
-                if (isMobile) {
-                    // Не скрываем клавиатуру сразу, чтобы пользователь мог продолжать ввод
+                if (isMobile && activeInputBox === this) {
+                    activeInputBox = null;
                 }
             }
             
@@ -654,10 +655,24 @@
                 ctx.font = normalFont;
                 ctx.textAlign = "left";
                 ctx.textBaseline = "top";
-                ctx.fillText(this.text, this.x + 5, this.y + 5);
+                
+                // Обрезаем текст, если он не помещается
+                let displayText = this.text;
+                const maxWidth = this.width - 10;
+                let textWidth = ctx.measureText(displayText).width;
+                
+                if (textWidth > maxWidth) {
+                    while (textWidth > maxWidth && displayText.length > 0) {
+                        displayText = displayText.substring(0, displayText.length - 1);
+                        textWidth = ctx.measureText(displayText + "...").width;
+                    }
+                    displayText += "...";
+                }
+                
+                ctx.fillText(displayText, this.x + 5, this.y + 5);
                 
                 if (this.active && this.cursorVisible) {
-                    const textWidth = ctx.measureText(this.text).width;
+                    const textWidth = ctx.measureText(displayText).width;
                     ctx.beginPath();
                     ctx.moveTo(this.x + textWidth + 8, this.y + 5);
                     ctx.lineTo(this.x + textWidth + 8, this.y + this.height - 5);
@@ -668,7 +683,94 @@
             }
         }
 
-        // Функции отрисовки экранов (остаются без изменений)
+        // Функции отрисовки экранов
+        function drawSetupScreen() {
+            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            // Заголовок
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = titleFont;
+            ctx.textAlign = "center";
+            ctx.fillText("Подарочек - Игра", SCREEN_WIDTH / 2, 100);
+            
+            // Панель настроек
+            ctx.fillStyle = PANEL_COLOR;
+            ctx.fillRect(100, 150, SCREEN_WIDTH - 200, 500);
+            ctx.strokeStyle = TEXT_COLOR;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(100, 150, SCREEN_WIDTH - 200, 500);
+            
+            // Подзаголовок
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = headerFont;
+            ctx.textAlign = "left";
+            ctx.fillText("Настройки игры", 150, 200);
+            
+            // Поле для количества заданий
+            ctx.font = normalFont;
+            ctx.fillText("Количество заданий в категории (5-50):", 150, 270);
+            tasksInput.draw(ctx);
+            
+            // Поле для игроков
+            ctx.fillText("Имя игрока:", 150, 340);
+            playerInput.draw(ctx);
+            addPlayerBtn.draw(ctx);
+            
+            // Список игроков
+            ctx.fillText("Список игроков:", 150, 420);
+            ctx.fillStyle = "#333";
+            ctx.font = smallFont;
+            
+            if (game.players.length === 0) {
+                ctx.fillText("Пока нет игроков", 150, 460);
+            } else {
+                for (let i = 0; i < game.players.length; i++) {
+                    ctx.drawImage(game.players[i].avatar, 150, 450 + i * 90);
+                    ctx.fillText(`${game.players[i].name} (0 очков)`, 250, 480 + i * 90);
+                }
+            }
+            
+            // Кнопка старта
+            startBtn.draw(ctx);
+        }
+        
+        function drawGameScreen() {
+            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = headerFont;
+            ctx.textAlign = "center";
+            ctx.fillText("Игра в процессе", SCREEN_WIDTH / 2, 50);
+        }
+        
+        function drawTaskWindow() {
+            // Заглушка для отрисовки окна задания
+            ctx.fillStyle = "rgba(0,0,0,0.7)";
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            ctx.fillStyle = PANEL_COLOR;
+            ctx.fillRect(100, 100, SCREEN_WIDTH - 200, SCREEN_HEIGHT - 200);
+            
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = headerFont;
+            ctx.textAlign = "center";
+            ctx.fillText("Задание", SCREEN_WIDTH / 2, 150);
+        }
+        
+        function drawGameOverScreen() {
+            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = titleFont;
+            ctx.textAlign = "center";
+            ctx.fillText("Игра завершена!", SCREEN_WIDTH / 2, 100);
+        }
+        
+        function drawIntermediateResultsScreen() {
+            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.font = headerFont;
+            ctx.textAlign = "center";
+            ctx.fillText("Промежуточные результаты", SCREEN_WIDTH / 2, 50);
+        }
 
         // Инициализация игры
         function init() {
@@ -733,8 +835,7 @@
                         } else if (action === 'closeKeyboard') {
                             keyboard.style.display = 'none';
                             if (activeInputBox) {
-                                activeInputBox.active = false;
-                                activeInputBox.cursorVisible = false;
+                                activeInputBox.deactivate();
                             }
                         }
                     });
@@ -749,12 +850,75 @@
                 }
             }, 500);
             
+            // Обработка кликов по холсту
+            canvas.addEventListener('click', function(event) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+                
+                handleClick(mouseX, mouseY);
+            });
+            
             // Запуск игрового цикла
             requestAnimationFrame(gameLoop);
         }
+        
+        function handleClick(mouseX, mouseY) {
+            if (game.state === "SETUP") {
+                // Проверка кликов по полям ввода
+                if (tasksInput.isPointInside(mouseX, mouseY)) {
+                    tasksInput.activate();
+                    playerInput.deactivate();
+                } else if (playerInput.isPointInside(mouseX, mouseY)) {
+                    playerInput.activate();
+                    tasksInput.deactivate();
+                } else {
+                    tasksInput.deactivate();
+                    playerInput.deactivate();
+                    
+                    // Проверка кликов по кнопкам
+                    if (addPlayerBtn.isClicked(mouseX, mouseY)) {
+                        if (game.addPlayer(playerInput.text)) {
+                            playerInput.text = "";
+                        }
+                    } else if (startBtn.isClicked(mouseX, mouseY)) {
+                        game.tasksCountInput = tasksInput.text;
+                        game.startGame();
+                    }
+                }
+            }
+            // Добавьте обработку для других состояний игры по аналогии
+        }
+        
+        function gameLoop() {
+            // Очистка экрана
+            ctx.fillStyle = BACKGROUND_COLOR;
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            // Отрисовка текущего экрана в зависимости от состояния игры
+            switch (game.state) {
+                case "SETUP":
+                    drawSetupScreen();
+                    break;
+                case "PLAYING":
+                    drawGameScreen();
+                    if (game.taskWindowOpen) {
+                        drawTaskWindow();
+                    }
+                    break;
+                case "GAME_OVER":
+                    drawGameOverScreen();
+                    break;
+                case "INTERMEDIATE_RESULTS":
+                    drawIntermediateResultsScreen();
+                    break;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
 
-        // Остальной код без изменений
-
+        // Запуск игры при загрузке страницы
+        window.onload = init;
     </script>
 </body>
 </html>
