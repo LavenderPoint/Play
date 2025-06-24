@@ -185,7 +185,7 @@
         const SCREEN_WIDTH = 1200;
         const SCREEN_HEIGHT = 800;
         const BACKGROUND_COLOR = "#FFF8DC"; // Светло-желтый
-        const TEXT_COLOR = "#503232";
+        const TEXT_COLOR = "#503232"; // Коричневый
         const BUTTON_COLOR = "#FFB6C1";
         const BUTTON_HOVER_COLOR = "#FF69B4";
         const PANEL_COLOR = "#FFFAF0";
@@ -580,6 +580,7 @@
             // Функция для определения цвета количества заданий
             getTaskCountColor() {
                 const count = parseInt(this.tasksCountInput);
+                if (count < 5 || count > 50) return TASK_COUNT_COLORS[0];
                 if (count <= 15) return TASK_COUNT_COLORS[0];
                 if (count <= 30) return TASK_COUNT_COLORS[1];
                 if (count <= 40) return TASK_COUNT_COLORS[2];
@@ -775,10 +776,7 @@
             
             // Список игроков
             ctx.fillStyle = game.getTaskCountColor();
-            ctx.fillText("Список игроков:", 150, 420);
-            ctx.fillStyle = "#888";
-            ctx.font = smallFont;
-            ctx.fillText("имя игрока", 150, 440);
+            ctx.fillText("Список игроков:", 170, 420); // Сдвинуто правее
             
             // Область для списка игроков с возможностью скролла
             ctx.save();
@@ -787,6 +785,8 @@
             ctx.clip();
             
             if (game.players.length === 0) {
+                ctx.fillStyle = "#888";
+                ctx.font = smallFont;
                 ctx.fillText("Пока нет игроков", 250, 460);
             } else {
                 const startY = 450;
@@ -802,6 +802,7 @@
                     
                     // Используем цвет игрока для имени
                     ctx.fillStyle = game.players[i].color;
+                    ctx.font = normalFont;
                     ctx.fillText(game.players[i].name, 260, playerY + 30);
                     
                     // Количество очков - черным
@@ -825,7 +826,7 @@
                 ctx.fillRect(950, thumbY, 10, thumbHeight);
             }
             
-            // Кнопка старта
+            // Кнопка старта (поднята на 3px)
             startBtn.draw(ctx);
         }
         
@@ -859,6 +860,36 @@
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(game.categories[i], buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
+            }
+            
+            // Отрисовка кружочков с заданиями
+            const circleRadius = 5;
+            const circleSpacing = 12;
+            const circlesPerRow = 10;
+            
+            for (let category = 0; category < 4; category++) {
+                const buttonX = startX + category * (buttonWidth + gap);
+                const buttonY = startY;
+                
+                const startCircleX = buttonX + (buttonWidth - (circlesPerRow * circleSpacing)) / 2;
+                const startCircleY = buttonY + buttonHeight + 20;
+                
+                for (let i = 0; i < game.tasksPerCategory; i++) {
+                    const row = Math.floor(i / circlesPerRow);
+                    const col = i % circlesPerRow;
+                    
+                    const circleX = startCircleX + col * circleSpacing;
+                    const circleY = startCircleY + row * circleSpacing;
+                    
+                    const task = game.tasks[category][i];
+                    ctx.beginPath();
+                    ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = task.completed ? "#555" : CATEGORY_COLORS[category];
+                    ctx.fill();
+                    ctx.strokeStyle = TEXT_COLOR;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
             }
             
             // Если открыто окно задания, рисуем его поверх
@@ -905,7 +936,8 @@
             game = new Game();
             
             // Создание элементов UI с правильными позициями
-            startBtn = new Button(SCREEN_WIDTH / 2 - 100, 588, 200, 60, "Начать игру");
+            // Кнопка "Начать игру" поднята на 3 пикселя (585 вместо 588)
+            startBtn = new Button(SCREEN_WIDTH / 2 - 100, 585, 200, 60, "Начать игру");
             addPlayerBtn = new Button(SCREEN_WIDTH / 2 - 100, 380, 200, 60, "Добавить игрока");
             tasksInput = new InputBox(650, 250, 200, 40, "50");
             playerInput = new InputBox(650, 320, 200, 40);
