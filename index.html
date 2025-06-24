@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Игра вместо Подарочек - Игра</title>
+    <title>Игра</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         
@@ -286,10 +286,10 @@
                 this.tasksRemaining = 0;
                 this.taskOffset = [0, 0, 0, 0];
                 this.playerListScroll = 0;
+                this.categories = ["Логика", "Творчество", "Слова", "Физподготовка"];
             }
             
             setupTasks() {
-                this.categories = ["Логика", "Творчество", "Слова", "Физподготовка"];
                 this.tasks = [];
                 
                 for (let catIdx = 0; catIdx < 4; catIdx++) {
@@ -585,6 +585,16 @@
                 if (count <= 40) return TASK_COUNT_COLORS[2];
                 return TASK_COUNT_COLORS[3];
             }
+            
+            selectRandomTaskInCategory(category) {
+                const availableTasks = this.tasks[category].filter(task => !task.completed);
+                if (availableTasks.length === 0) return false;
+
+                const randomIndex = Math.floor(Math.random() * availableTasks.length);
+                const difficulty = availableTasks[randomIndex].difficulty - 1; // потому что индекс = difficulty-1
+
+                return this.selectTask(category, difficulty);
+            }
         }
 
         // Вспомогательная функция для склонения слов
@@ -736,7 +746,7 @@
             ctx.fillStyle = TEXT_COLOR;
             ctx.font = titleFont;
             ctx.textAlign = "center";
-            ctx.fillText("Игра вместо Подарочек - Игра", SCREEN_WIDTH / 2, 100);
+            ctx.fillText("Игра", SCREEN_WIDTH / 2, 100);
             
             // Панель настроек
             ctx.fillStyle = PANEL_COLOR;
@@ -752,19 +762,23 @@
             ctx.fillText("Настройки игры", 150, 200);
             
             // Поле для количества заданий
+            ctx.fillStyle = game.getTaskCountColor();
             ctx.font = normalFont;
             ctx.fillText("Количество заданий в категории (5-50):", 150, 270);
             tasksInput.draw(ctx);
             
             // Поле для игроков
+            ctx.fillStyle = game.getTaskCountColor();
             ctx.fillText("Имя игрока:", 150, 340);
             playerInput.draw(ctx);
             addPlayerBtn.draw(ctx);
             
             // Список игроков
+            ctx.fillStyle = game.getTaskCountColor();
             ctx.fillText("Список игроков:", 150, 420);
-            ctx.fillStyle = "#333";
+            ctx.fillStyle = "#888";
             ctx.font = smallFont;
+            ctx.fillText("имя игрока", 150, 440);
             
             // Область для списка игроков с возможностью скролла
             ctx.save();
@@ -773,7 +787,6 @@
             ctx.clip();
             
             if (game.players.length === 0) {
-                // Сдвигаем текст "Пока нет игроков" вправо (на 250 вместо 150)
                 ctx.fillText("Пока нет игроков", 250, 460);
             } else {
                 const startY = 450;
@@ -789,20 +802,20 @@
                     
                     // Используем цвет игрока для имени
                     ctx.fillStyle = game.players[i].color;
-                    ctx.fillText(game.players[i].name, 250, playerY + 30);
+                    ctx.fillText(game.players[i].name, 260, playerY + 30);
                     
                     // Количество очков - черным
                     ctx.fillStyle = "#333";
-                    ctx.fillText(`(${game.players[i].score} очков)`, 250, playerY + 60);
+                    ctx.fillText(`(${game.players[i].score} очков)`, 260, playerY + 60);
                 }
             }
             ctx.restore();
             
             // Рисуем скроллбар, если нужно
-            if (game.players.length > 5) {
+            if (game.players.length > 2) {
                 const scrollHeight = 450;
                 const totalHeight = game.players.length * 90;
-                const thumbHeight = (scrollHeight / totalHeight) * scrollHeight;
+                const thumbHeight = Math.max(30, (scrollHeight / totalHeight) * scrollHeight);
                 const thumbY = 450 + (game.playerListScroll / totalHeight) * scrollHeight;
                 
                 ctx.fillStyle = "#CCC";
@@ -812,16 +825,46 @@
                 ctx.fillRect(950, thumbY, 10, thumbHeight);
             }
             
-            // Кнопка старта (поднята на 8px)
+            // Кнопка старта
             startBtn.draw(ctx);
         }
         
-        function drawGameScreen() {
+        function drawPlayingScreen() {
             ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            
+            // Заголовок
             ctx.fillStyle = TEXT_COLOR;
             ctx.font = headerFont;
             ctx.textAlign = "center";
-            ctx.fillText("Игра в процессе", SCREEN_WIDTH / 2, 50);
+            ctx.fillText(`Ход игрока: ${game.players[game.currentPlayerIdx].name}`, SCREEN_WIDTH / 2, 50);
+            
+            // Кнопки категорий
+            const buttonWidth = 200;
+            const buttonHeight = 80;
+            const gap = 50;
+            const startX = (SCREEN_WIDTH - (4 * buttonWidth + 3 * gap)) / 2;
+            const startY = 150;
+            
+            for (let i = 0; i < 4; i++) {
+                const buttonX = startX + i * (buttonWidth + gap);
+                const buttonY = startY;
+                ctx.fillStyle = CATEGORY_COLORS[i];
+                ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+                ctx.strokeStyle = TEXT_COLOR;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(buttonX, buttonY, buttonWidth, buttonHeight);
+                
+                ctx.fillStyle = "white";
+                ctx.font = normalFont;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(game.categories[i], buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
+            }
+            
+            // Если открыто окно задания, рисуем его поверх
+            if (game.taskWindowOpen) {
+                drawTaskWindow();
+            }
         }
         
         function drawTaskWindow() {
@@ -862,7 +905,7 @@
             game = new Game();
             
             // Создание элементов UI с правильными позициями
-            startBtn = new Button(SCREEN_WIDTH / 2 - 100, 592, 200, 60, "Начать игру"); // Подняли на 8px
+            startBtn = new Button(SCREEN_WIDTH / 2 - 100, 588, 200, 60, "Начать игру");
             addPlayerBtn = new Button(SCREEN_WIDTH / 2 - 100, 380, 200, 60, "Добавить игрока");
             tasksInput = new InputBox(650, 250, 200, 40, "50");
             playerInput = new InputBox(650, 320, 200, 40);
@@ -960,7 +1003,7 @@
             
             // Обработка колеса мыши для скролла списка игроков
             canvas.addEventListener('wheel', function(event) {
-                if (game.state === "SETUP" && game.players.length > 5) {
+                if (game.state === "SETUP" && game.players.length > 2) {
                     event.preventDefault();
                     const delta = Math.sign(event.deltaY) * 30;
                     game.playerListScroll = Math.min(
@@ -998,6 +1041,25 @@
                     }
                 }
             }
+            else if (game.state === "PLAYING" && !game.taskWindowOpen) {
+                // Обработка кликов по кнопкам категорий
+                const buttonWidth = 200;
+                const buttonHeight = 80;
+                const gap = 50;
+                const startX = (SCREEN_WIDTH - (4 * buttonWidth + 3 * gap)) / 2;
+                const startY = 150;
+                
+                for (let i = 0; i < 4; i++) {
+                    const buttonX = startX + i * (buttonWidth + gap);
+                    const buttonY = startY;
+                    
+                    if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                        mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                        game.selectRandomTaskInCategory(i);
+                        break;
+                    }
+                }
+            }
             // Добавьте обработку для других состояний игры по аналогии
         }
         
@@ -1012,10 +1074,7 @@
                     drawSetupScreen();
                     break;
                 case "PLAYING":
-                    drawGameScreen();
-                    if (game.taskWindowOpen) {
-                        drawTaskWindow();
-                    }
+                    drawPlayingScreen();
                     break;
                 case "GAME_OVER":
                     drawGameOverScreen();
