@@ -776,18 +776,18 @@
             
             // Список игроков
             ctx.fillStyle = game.getTaskCountColor();
-            ctx.fillText("Список игроков:", 170, 420); // Сдвинуто правее
+            ctx.fillText("Список игроков:", 220, 420); // Сдвинуто правее
             
             // Область для списка игроков с возможностью скролла
             ctx.save();
             ctx.beginPath();
-            ctx.rect(150, 450, 800, 450); // Ограничиваем область
+            ctx.rect(200, 450, 800, 450); // Ограничиваем область (сдвинуто вправо)
             ctx.clip();
             
             if (game.players.length === 0) {
                 ctx.fillStyle = "#888";
                 ctx.font = smallFont;
-                ctx.fillText("Пока нет игроков", 250, 460);
+                ctx.fillText("Пока нет игроков", 300, 460); // Сдвинуто правее
             } else {
                 const startY = 450;
                 const itemHeight = 90;
@@ -798,16 +798,16 @@
                     // Рисуем только видимых игроков
                     if (playerY > 450 + 450 || playerY + itemHeight < 450) continue;
                     
-                    ctx.drawImage(game.players[i].avatar, 150, playerY);
+                    ctx.drawImage(game.players[i].avatar, 200, playerY); // Сдвинуто правее
                     
                     // Используем цвет игрока для имени
                     ctx.fillStyle = game.players[i].color;
                     ctx.font = normalFont;
-                    ctx.fillText(game.players[i].name, 260, playerY + 30);
+                    ctx.fillText(game.players[i].name, 310, playerY + 30); // Сдвинуто правее
                     
                     // Количество очков - черным
                     ctx.fillStyle = "#333";
-                    ctx.fillText(`(${game.players[i].score} очков)`, 260, playerY + 60);
+                    ctx.fillText(`(${game.players[i].score} очков)`, 310, playerY + 60); // Сдвинуто правее
                 }
             }
             ctx.restore();
@@ -820,10 +820,10 @@
                 const thumbY = 450 + (game.playerListScroll / totalHeight) * scrollHeight;
                 
                 ctx.fillStyle = "#CCC";
-                ctx.fillRect(950, 450, 10, scrollHeight);
+                ctx.fillRect(1000, 450, 10, scrollHeight); // Сдвинуто правее
                 
                 ctx.fillStyle = "#888";
-                ctx.fillRect(950, thumbY, 10, thumbHeight);
+                ctx.fillRect(1000, thumbY, 10, thumbHeight); // Сдвинуто правее
             }
             
             // Кнопка старта (поднята на 3px)
@@ -862,9 +862,9 @@
                 ctx.fillText(game.categories[i], buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
             }
             
-            // Отрисовка кружочков с заданиями
-            const circleRadius = 5;
-            const circleSpacing = 12;
+            // Отрисовка кружочков с заданиями (увеличены)
+            const circleRadius = 8; // Увеличенный радиус
+            const circleSpacing = 15; // Большее расстояние
             const circlesPerRow = 10;
             
             for (let category = 0; category < 4; category++) {
@@ -910,6 +910,57 @@
             ctx.font = headerFont;
             ctx.textAlign = "center";
             ctx.fillText("Задание", SCREEN_WIDTH / 2, 150);
+            
+            // Отрисовка задания
+            const task = game.tasks[game.selectedCategory][game.selectedDifficulty];
+            ctx.fillStyle = "#333";
+            ctx.font = normalFont;
+            ctx.textAlign = "left";
+            
+            // Перенос текста
+            const maxWidth = SCREEN_WIDTH - 300;
+            const lineHeight = 28;
+            let y = 200;
+            
+            const words = task.description.split(' ');
+            let line = '';
+            
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, 150, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, 150, y);
+            
+            // Если показан ответ
+            if (game.showAnswer) {
+                ctx.fillStyle = "#444";
+                ctx.font = "italic " + normalFont;
+                y += 40;
+                
+                const answerLine = "Ответ: " + task.answer;
+                ctx.fillText(answerLine, 150, y);
+            }
+            
+            // Рисуем кнопки
+            showAnswerBtn.x = SCREEN_WIDTH / 2 - 200;
+            showAnswerBtn.y = SCREEN_HEIGHT - 200;
+            acceptBtn.x = SCREEN_WIDTH / 2 - 210;
+            acceptBtn.y = SCREEN_HEIGHT - 120;
+            rejectBtn.x = SCREEN_WIDTH / 2 + 30;
+            rejectBtn.y = SCREEN_HEIGHT - 120;
+            
+            showAnswerBtn.draw(ctx);
+            if (game.showAnswer) {
+                acceptBtn.draw(ctx);
+                rejectBtn.draw(ctx);
+            }
         }
         
         function drawGameOverScreen() {
@@ -1073,22 +1124,66 @@
                     }
                 }
             }
-            else if (game.state === "PLAYING" && !game.taskWindowOpen) {
-                // Обработка кликов по кнопкам категорий
-                const buttonWidth = 200;
-                const buttonHeight = 80;
-                const gap = 50;
-                const startX = (SCREEN_WIDTH - (4 * buttonWidth + 3 * gap)) / 2;
-                const startY = 150;
-                
-                for (let i = 0; i < 4; i++) {
-                    const buttonX = startX + i * (buttonWidth + gap);
-                    const buttonY = startY;
+            else if (game.state === "PLAYING") {
+                if (game.taskWindowOpen) {
+                    // Обработка кнопок в окне задания
+                    if (showAnswerBtn.isClicked(mouseX, mouseY)) {
+                        game.showAnswer = true;
+                    } else if (game.showAnswer) {
+                        if (acceptBtn.isClicked(mouseX, mouseY)) {
+                            game.completeTask(true);
+                        } else if (rejectBtn.isClicked(mouseX, mouseY)) {
+                            game.completeTask(false);
+                        }
+                    }
+                } else {
+                    // Обработка кликов по кнопкам категорий
+                    const buttonWidth = 200;
+                    const buttonHeight = 80;
+                    const gap = 50;
+                    const startX = (SCREEN_WIDTH - (4 * buttonWidth + 3 * gap)) / 2;
+                    const startY = 150;
                     
-                    if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
-                        mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                        game.selectRandomTaskInCategory(i);
-                        break;
+                    for (let i = 0; i < 4; i++) {
+                        const buttonX = startX + i * (buttonWidth + gap);
+                        const buttonY = startY;
+                        
+                        if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                            mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                            game.selectRandomTaskInCategory(i);
+                            break;
+                        }
+                    }
+                    
+                    // Обработка кликов по кружочкам заданий
+                    const circleRadius = 8; // Увеличенный радиус
+                    const circleSpacing = 15; // Большее расстояние
+                    const circlesPerRow = 10;
+                    
+                    for (let category = 0; category < 4; category++) {
+                        const buttonX = startX + category * (buttonWidth + gap);
+                        const buttonY = startY;
+                        
+                        const startCircleX = buttonX + (buttonWidth - (circlesPerRow * circleSpacing)) / 2;
+                        const startCircleY = buttonY + buttonHeight + 20;
+                        
+                        for (let i = 0; i < game.tasksPerCategory; i++) {
+                            const row = Math.floor(i / circlesPerRow);
+                            const col = i % circlesPerRow;
+                            
+                            const circleX = startCircleX + col * circleSpacing;
+                            const circleY = startCircleY + row * circleSpacing;
+                            
+                            // Проверяем расстояние от мыши до центра кружочка
+                            const distance = Math.sqrt(Math.pow(mouseX - circleX, 2) + Math.pow(mouseY - circleY, 2));
+                            if (distance <= circleRadius) {
+                                // Если клик по кружочку и задание не выполнено
+                                if (!game.tasks[category][i].completed) {
+                                    game.selectTask(category, i);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
